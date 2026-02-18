@@ -12,4 +12,4 @@ fi
 CONNECT=$(echo "$SELECTED" | awk '{print $1}')
 echo "connecting"
 
-ssh berry@$CONNECT
+ssh $USER@$CONNECT

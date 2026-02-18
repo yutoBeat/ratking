@@ -1,0 +1,50 @@
+#!/usr/bin/env zsh
+
+
+help() {
+  echo
+  echo "RatKing - Tailscale ssh'er"
+  echo 
+  echo "Usage ratking [options]"
+  echo 
+  echo "options"
+  echo " -u speicfy user (defaults to current user)"
+  echo " -h Show this message"
+  echo
+  exit 0
+}
+
+
+
+USR=${USR:-$USER}
+
+while [[ $# -gt 0 ]]; do
+  case $1 in 
+    -h) 
+     help
+      ;;
+    -u)
+      shift
+      USR="$1"
+      shift
+      ;;
+    *)
+  esac
+done
+
+
+DEVICES=$(tailscale status --json | jq -r '.Peer[] | select(.Online==true) | "\(.HostName) \(.TailscaleIPs[0])"')
+
+SELECTED=$(echo "$DEVICES" | fzf --prompt="Select device " --height 10)
+
+if [ -z "$SELECTED" ]; then
+  echo "nothing selected..."
+  exit 1
+fi
+
+CONNECT=$(echo "$SELECTED" | awk '{print $1}')
+echo "connecting"
+
+echo $USR 
+echo $CONNECT
+ssh $USR@$CONNECT
